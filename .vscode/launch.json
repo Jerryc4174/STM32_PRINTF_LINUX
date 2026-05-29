@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "STM32Cube: ST-Link (UART printf)",
+            "type": "stlinkgdbtarget",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/001Tasks.elf",
+            "deviceName": "STM32F429ZIT7",
+            "svdPath": "${workspaceFolder}/STM32F429.svd",
+            "runEntry": "main",
+            "imagesAndSymbols": [
+                {
+                    "imageFileName": "${workspaceFolder}/build/Debug/001Tasks.elf",
+                    "symbolFileName": "${workspaceFolder}/build/Debug/001Tasks.elf"
+                }
+            ],
+            "serverExe": "ST-LINK_gdbserver",
+            "serverCwd": "/home/jerry/st/stm32cubeclt_1.21.0/STLink-gdb-server/bin",
+            "serverCubeProgPath": "/home/jerry/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin",
+            "serverInterface": "SWD",
+            "serverPort": "61234"
+        }
+    ]
+}
