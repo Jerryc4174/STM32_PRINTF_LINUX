@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "SEGGER_SYSVIEW.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -46,7 +47,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+#define DWT_CTRL   (*(volatile uint32_t*)0xE0001000)
+static BaseType_t g_sysview_started = pdFALSE;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -55,6 +57,7 @@ void SystemClock_Config(void);
 
 static void task1_handler(void* parameters);
 static void task2_handler(void* parameters);
+void vInitPrioGroupValue(void);
 
 /* USER CODE END PFP */
 
@@ -97,6 +100,11 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
+  DWT_CTRL |= (1<<0);
+
+  vInitPrioGroupValue();
+
+  SEGGER_SYSVIEW_Conf();
 
   status = xTaskCreate(task1_handler, "Tasks-1", 200, "Hello World from Task-1", 2, &task1_handle );
   configASSERT(status ==pdPASS);
@@ -164,9 +172,19 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 static void task1_handler(void* parameters){
 	char* msg = (char*) parameters;
+  if (g_sysview_started == pdFALSE)
+  {
+    taskENTER_CRITICAL();
+    if (g_sysview_started == pdFALSE)
+    {
+      SEGGER_SYSVIEW_Start();
+      g_sysview_started = pdTRUE;
+    }
+    taskEXIT_CRITICAL();
+  }
 	while(1){
 		printf("%s\n", msg);
-    taskYIELD();
+    //taskYIELD();
 		//vTaskDelay(pdMS_TO_TICKS(1000));
 	}
 
@@ -176,10 +194,15 @@ static void task2_handler(void* parameters){
 	char* msg = (char*) parameters;
 	while(1){
 		printf("%s\n", msg);
-    taskYIELD();
+    //taskYIELD();
 		//vTaskDelay(pdMS_TO_TICKS(1000));
 	}
 
+}
+
+void vInitPrioGroupValue(void)
+{
+  HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 }
 /* USER CODE END 4 */
 

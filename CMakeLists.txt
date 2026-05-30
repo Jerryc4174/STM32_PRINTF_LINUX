@@ -32,10 +32,19 @@ target_link_options(${BUILD_UNIT_0_NAME} PRIVATE
 target_sources(${BUILD_UNIT_0_NAME} PRIVATE
   # User defined sources
   Core/Src/debug_uart.c
+  ThirdParty/SEGGER/SEGGER/SEGGER_RTT.c
+  ThirdParty/SEGGER/SEGGER/SEGGER_RTT_ASM_ARMv7M.S
+  ThirdParty/SEGGER/SEGGER/SEGGER_RTT_printf.c
+  ThirdParty/SEGGER/SEGGER/SEGGER_SYSVIEW.c
+  ThirdParty/SEGGER/OS/SEGGER_SYSVIEW_FreeRTOS.c
+  ThirdParty/SEGGER/Config/SEGGER_SYSVIEW_Config_FreeRTOS.c
 )
 
 # Add include directories
 target_include_directories(${BUILD_UNIT_0_NAME} PRIVATE
   # User defined include directories
   Core/Inc
+  ThirdParty/SEGGER/Config
+  ThirdParty/SEGGER/OS
+  ThirdParty/SEGGER/SEGGER
 )
