@@ -83,14 +83,14 @@ int main(void)
 
   /* USER CODE BEGIN Init */
 
-  DebugUart_Init();
-
   /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
+
+  DebugUart_Init();
 
   /* USER CODE END SysInit */
 
@@ -166,7 +166,8 @@ static void task1_handler(void* parameters){
 	char* msg = (char*) parameters;
 	while(1){
 		printf("%s\n", msg);
-		vTaskDelay(pdMS_TO_TICKS(1000));
+    taskYIELD();
+		//vTaskDelay(pdMS_TO_TICKS(1000));
 	}
 
 }
@@ -175,7 +176,8 @@ static void task2_handler(void* parameters){
 	char* msg = (char*) parameters;
 	while(1){
 		printf("%s\n", msg);
-		vTaskDelay(pdMS_TO_TICKS(1000));
+    taskYIELD();
+		//vTaskDelay(pdMS_TO_TICKS(1000));
 	}
 
 }
