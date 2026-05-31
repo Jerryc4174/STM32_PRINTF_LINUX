@@ -68,7 +68,7 @@ Notes:
 #endif
 
 #define SYSVIEW_FREERTOS_MAX_NOF_TASKS      8
-#define SYSVIEW_PORT_PROVIDES_CONTEXT_CHECK 0
+#define SYSVIEW_PORT_PROVIDES_CONTEXT_CHECK 1
 
 /*********************************************************************
 *

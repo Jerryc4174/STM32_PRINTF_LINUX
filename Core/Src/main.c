@@ -48,7 +48,6 @@
 
 /* USER CODE BEGIN PV */
 #define DWT_CTRL   (*(volatile uint32_t*)0xE0001000)
-static BaseType_t g_sysview_started = pdFALSE;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -105,6 +104,7 @@ int main(void)
   vInitPrioGroupValue();
 
   SEGGER_SYSVIEW_Conf();
+  SEGGER_SYSVIEW_Start();
 
   status = xTaskCreate(task1_handler, "Tasks-1", 200, "Hello World from Task-1", 2, &task1_handle );
   configASSERT(status ==pdPASS);
@@ -172,16 +172,6 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 static void task1_handler(void* parameters){
 	char* msg = (char*) parameters;
-  if (g_sysview_started == pdFALSE)
-  {
-    taskENTER_CRITICAL();
-    if (g_sysview_started == pdFALSE)
-    {
-      SEGGER_SYSVIEW_Start();
-      g_sysview_started = pdTRUE;
-    }
-    taskEXIT_CRITICAL();
-  }
 	while(1){
 		printf("%s\n", msg);
     //taskYIELD();
