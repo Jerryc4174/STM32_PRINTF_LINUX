@@ -171,21 +171,21 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 static void task1_handler(void* parameters){
-	char* msg = (char*) parameters;
+	char msg[100];
 	while(1){
-		printf("%s\n", msg);
-    //taskYIELD();
-		//vTaskDelay(pdMS_TO_TICKS(1000));
-	}
-
+    snprintf(msg, 100, "%s", (char*) parameters);
+    SEGGER_SYSVIEW_PrintfTarget(msg);
+    taskYIELD();
+  }
 }
-
 static void task2_handler(void* parameters){
-	char* msg = (char*) parameters;
+	
+  char msg[100];
 	while(1){
-		printf("%s\n", msg);
-    //taskYIELD();
-		//vTaskDelay(pdMS_TO_TICKS(1000));
+    snprintf(msg, 100, "%s", (char*) parameters);
+    SEGGER_SYSVIEW_PrintfTarget(msg);
+    taskYIELD();
+	
 	}
 
 }
