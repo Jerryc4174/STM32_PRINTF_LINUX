@@ -24,7 +24,12 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#if defined(APP_TRACE_MODE_PRINTF) && (APP_TRACE_MODE_PRINTF == 1)
 #include "debug_uart.h"
+#endif
+#if defined(APP_TRACE_MODE_SYSVIEW) && (APP_TRACE_MODE_SYSVIEW == 1)
+#include "sysview_uart.h"
+#endif
 #include "FreeRTOS.h"
 #include "task.h"
 /* USER CODE END Includes */
@@ -92,7 +97,9 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
 
+#if defined(APP_TRACE_MODE_PRINTF) && (APP_TRACE_MODE_PRINTF == 1)
   DebugUart_Init();
+#endif
 
   /* USER CODE END SysInit */
 
@@ -102,9 +109,17 @@ int main(void)
   DWT_CTRL |= (1<<0);
 
   vInitPrioGroupValue();
+#if defined(APP_TRACE_MODE_SYSVIEW) && (APP_TRACE_MODE_SYSVIEW == 1)
+  SysViewUart_Init();
 
   SEGGER_SYSVIEW_Conf();
   SEGGER_SYSVIEW_Start();
+  SEGGER_SYSVIEW_PrintfTarget("[BOOT] SystemView UART (USART6) ready");
+#elif defined(APP_TRACE_MODE_PRINTF) && (APP_TRACE_MODE_PRINTF == 1)
+  printf("[BOOT] printf UART (USART3) ready\n");
+#else
+#error "Define APP_TRACE_MODE_PRINTF or APP_TRACE_MODE_SYSVIEW"
+#endif
 
   status = xTaskCreate(task1_handler, "Tasks-1", 200, "Hello World from Task-1", 2, &task1_handle );
   configASSERT(status ==pdPASS);

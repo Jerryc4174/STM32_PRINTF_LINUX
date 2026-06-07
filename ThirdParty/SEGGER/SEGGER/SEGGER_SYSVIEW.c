@@ -142,6 +142,22 @@ Additional information:
 #include "SEGGER_SYSVIEW_Int.h"
 #include "SEGGER_RTT.h"
 
+#if defined(SEGGER_SYSVIEW_USE_UART) && (SEGGER_SYSVIEW_USE_UART == 1)
+#include "sysview_uart.h"
+#endif
+
+#if defined(SEGGER_SYSVIEW_USE_UART) && (SEGGER_SYSVIEW_USE_UART == 1)
+  #define SYSVIEW_TRANSPORT_WRITE_SKIP_NO_LOCK(Channel, pData, NumBytes)  ((void)(Channel), SysViewUart_Send((const uint8_t*)(pData), (size_t)(NumBytes)))
+  #define SYSVIEW_TRANSPORT_WRITE_OVERWRITE_NO_LOCK(Channel, pData, NumBytes)  ((void)(Channel), SysViewUart_Send((const uint8_t*)(pData), (size_t)(NumBytes)))
+  #define SYSVIEW_TRANSPORT_READ_NO_LOCK(Channel, pData, NumBytes)  ((void)(Channel), SysViewUart_Read((uint8_t*)(pData), (unsigned int)(NumBytes)))
+  #define SYSVIEW_TRANSPORT_HASDATA(Channel)  ((void)(Channel), SysViewUart_HasData())
+#else
+  #define SYSVIEW_TRANSPORT_WRITE_SKIP_NO_LOCK(Channel, pData, NumBytes)  SEGGER_RTT_WriteSkipNoLock((Channel), (pData), (NumBytes))
+  #define SYSVIEW_TRANSPORT_WRITE_OVERWRITE_NO_LOCK(Channel, pData, NumBytes)  SEGGER_RTT_WriteWithOverwriteNoLock((Channel), (pData), (NumBytes))
+  #define SYSVIEW_TRANSPORT_READ_NO_LOCK(Channel, pData, NumBytes)  SEGGER_RTT_ReadNoLock((Channel), (pData), (NumBytes))
+  #define SYSVIEW_TRANSPORT_HASDATA(Channel)  SEGGER_RTT_HASDATA((Channel))
+#endif
+
 /*********************************************************************
 *
 *       Defines, fixed
@@ -565,7 +581,7 @@ static void _HandleIncomingPacket(void) {
   U8  Cmd;
   unsigned int Status;
   //
-  Status = SEGGER_RTT_ReadNoLock(CHANNEL_ID_DOWN, &Cmd, 1);
+  Status = SYSVIEW_TRANSPORT_READ_NO_LOCK(CHANNEL_ID_DOWN, &Cmd, 1);
   if (Status > 0) {
     switch (Cmd) {
     case SEGGER_SYSVIEW_COMMAND_ID_START:
@@ -590,7 +606,7 @@ static void _HandleIncomingPacket(void) {
       SEGGER_SYSVIEW_SendModuleDescription();
       break;
     case SEGGER_SYSVIEW_COMMAND_ID_GET_MODULE:
-      Status = SEGGER_RTT_ReadNoLock(CHANNEL_ID_DOWN, &Cmd, 1);
+      Status = SYSVIEW_TRANSPORT_READ_NO_LOCK(CHANNEL_ID_DOWN, &Cmd, 1);
       if (Status > 0) {
         SEGGER_SYSVIEW_SendModule(Cmd);
       }
@@ -599,7 +615,7 @@ static void _HandleIncomingPacket(void) {
       break;
     default:
       if (Cmd >= 128) { // Unknown extended command. Dummy read its parameter.
-        SEGGER_RTT_ReadNoLock(CHANNEL_ID_DOWN, &Cmd, 1);
+        SYSVIEW_TRANSPORT_READ_NO_LOCK(CHANNEL_ID_DOWN, &Cmd, 1);
       }
       break;
     }
@@ -623,7 +639,7 @@ static void _HandleIncomingPacket(void) {
 */
 static void _CheckDownBuffer(SEGGER_SYSVIEW_CORE_CONTEXT* pContext) {
   if (pContext == &_SYSVIEW_Globals.MainContext) {
-    if (SEGGER_RTT_HASDATA(CHANNEL_ID_DOWN)) {
+    if (SYSVIEW_TRANSPORT_HASDATA(CHANNEL_ID_DOWN)) {
       if (pContext->RecursionCnt == 0) {   // Avoid uncontrolled nesting. This way, this routine can call itself once, but no more often than that.
         pContext->RecursionCnt = 1;
         _HandleIncomingPacket();
@@ -677,7 +693,7 @@ static int _TrySendOverflowPacket(SEGGER_SYSVIEW_CORE_CONTEXT* pContext, U32 Tim
   //
   // Try to store packet in RTT buffer and update time stamp when this was successful
   //
-  Status = (int)SEGGER_RTT_WriteSkipNoLock(pContext->UpChannel, aPacket, (unsigned int)(pPayload - aPacket));
+  Status = (int)SYSVIEW_TRANSPORT_WRITE_SKIP_NO_LOCK(pContext->UpChannel, aPacket, (unsigned int)(pPayload - aPacket));
   SEGGER_SYSVIEW_ON_EVENT_RECORDED(pPayload - aPacket);
   if (Status) {
     pContext->LastTxTimeStamp = TimeStamp;
@@ -711,7 +727,7 @@ static void _SendSyncInfo(void) {
   // Send module description
   // Send module information
   //
-  SEGGER_RTT_WriteWithOverwriteNoLock(CHANNEL_ID_UP, _abSync, 10);
+  SYSVIEW_TRANSPORT_WRITE_OVERWRITE_NO_LOCK(CHANNEL_ID_UP, _abSync, 10);
   SEGGER_SYSVIEW_ON_EVENT_RECORDED(10);
   SEGGER_SYSVIEW_RecordVoid(SYSVIEW_EVTID_TRACE_START);
   {
@@ -934,14 +950,14 @@ Send:
   //
   // Store packet in RTT buffer by overwriting old data.
   //
-  SEGGER_RTT_WriteWithOverwriteNoLock(pContext->UpChannel, pStartPacket, (unsigned int)(pEndPacket - pStartPacket));
+  SYSVIEW_TRANSPORT_WRITE_OVERWRITE_NO_LOCK(pContext->UpChannel, pStartPacket, (unsigned int)(pEndPacket - pStartPacket));
   SEGGER_SYSVIEW_ON_EVENT_RECORDED(pEndPacket - pStartPacket);
   pContext->LastTxTimeStamp = TimeStamp;
 #else
   //
   // Try to store packet in RTT buffer.
   //
-  Status = (int)SEGGER_RTT_WriteSkipNoLock(pContext->UpChannel, pStartPacket, (unsigned int)(pEndPacket - pStartPacket));
+  Status = (int)SYSVIEW_TRANSPORT_WRITE_SKIP_NO_LOCK(pContext->UpChannel, pStartPacket, (unsigned int)(pEndPacket - pStartPacket));
   SEGGER_SYSVIEW_ON_EVENT_RECORDED(pEndPacket - pStartPacket);
   if (Status) {
     pContext->LastTxTimeStamp = TimeStamp;
@@ -2118,7 +2134,7 @@ void SEGGER_SYSVIEW_Start_Ex(SEGGER_SYSVIEW_CORE_CONTEXT* pContext, unsigned Tim
     }
 #else
     SEGGER_SYSVIEW_LOCK();
-    SEGGER_RTT_WriteSkipNoLock(pContext->UpChannel, _abSync, 10);
+    SYSVIEW_TRANSPORT_WRITE_SKIP_NO_LOCK(pContext->UpChannel, _abSync, 10);
     SEGGER_SYSVIEW_UNLOCK();
     SEGGER_SYSVIEW_ON_EVENT_RECORDED(10);
     _SendStartEvent(pContext);

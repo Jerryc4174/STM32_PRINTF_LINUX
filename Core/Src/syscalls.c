@@ -31,7 +31,9 @@
 #include <sys/times.h>
 
 /* USER CODE BEGIN Includes */
+#if defined(APP_TRACE_MODE_PRINTF) && (APP_TRACE_MODE_PRINTF == 1)
 #include "debug_uart.h"
+#endif
 /* USER CODE END Includes */
 
 
@@ -86,8 +88,14 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
   /* USER CODE BEGIN Init */
   (void)file;
 
+#if defined(APP_TRACE_MODE_PRINTF) && (APP_TRACE_MODE_PRINTF == 1)
+
   DebugUart_Write((const uint8_t *)ptr, (size_t)len);
   return len;
+#else
+  (void)ptr;
+  return len;
+#endif
   /* USER CODE END Init */
 }
 

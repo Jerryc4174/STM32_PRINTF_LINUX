@@ -28,10 +28,21 @@ target_link_options(${BUILD_UNIT_0_NAME} PRIVATE
   # User defined linker options
 )
 
+set(APP_TRACE_MODE "PRINTF" CACHE STRING "Trace mode: PRINTF or SYSVIEW")
+string(TOUPPER "${APP_TRACE_MODE}" APP_TRACE_MODE_UPPER)
+if(APP_TRACE_MODE_UPPER STREQUAL "PRINTF")
+  target_compile_definitions(${BUILD_UNIT_0_NAME} PRIVATE APP_TRACE_MODE_PRINTF=1)
+elseif(APP_TRACE_MODE_UPPER STREQUAL "SYSVIEW")
+  target_compile_definitions(${BUILD_UNIT_0_NAME} PRIVATE APP_TRACE_MODE_SYSVIEW=1)
+else()
+  message(FATAL_ERROR "APP_TRACE_MODE must be PRINTF or SYSVIEW")
+endif()
+
 # Add sources to executable/library
 target_sources(${BUILD_UNIT_0_NAME} PRIVATE
   # User defined sources
   Core/Src/debug_uart.c
+  Core/Src/sysview_uart.c
   ThirdParty/SEGGER/SEGGER/SEGGER_RTT.c
   ThirdParty/SEGGER/SEGGER/SEGGER_RTT_ASM_ARMv7M.S
   ThirdParty/SEGGER/SEGGER/SEGGER_RTT_printf.c

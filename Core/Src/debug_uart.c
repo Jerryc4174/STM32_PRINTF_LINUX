@@ -22,7 +22,8 @@ void DebugUart_Init(void)
   USART3->CR3 = 0U;
 
   peripheral_clock_hz = HAL_RCC_GetPCLK1Freq();
-  USART3->BRR = (peripheral_clock_hz + (115200U / 2U)) / 115200U;
+  //USART3->BRR = (peripheral_clock_hz + (115200U / 2U)) / 115200U;
+  USART3->BRR = (peripheral_clock_hz + (500000U / 2U)) / 500000U;
   USART3->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_UE;
 }
 

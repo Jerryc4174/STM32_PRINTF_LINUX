@@ -26,6 +26,7 @@
             "inherits": "default",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
+                "APP_TRACE_MODE": "SYSVIEW",
                 "CUBE_CMAKE_C_FLAGS": "-mfpu=fpv4-sp-d16;-mfloat-abi=hard;-mthumb;--specs=nano.specs;-mcpu=cortex-m4;-std=gnu11;-g3;-DDEBUG;-DUSE_HAL_DRIVER;-DSTM32F429xx;-O0;-ffunction-sections;-fdata-sections;-Wall;-fstack-usage;-fcyclomatic-complexity",
                 "CUBE_CMAKE_CXX_FLAGS": "-mfpu=fpv4-sp-d16;-mfloat-abi=hard;-mthumb;--specs=nano.specs;-mcpu=cortex-m4;-std=gnu++14;-g3;-O0;-ffunction-sections;-fdata-sections;-fno-exceptions;-fno-rtti;-fno-use-cxa-atexit;-Wall;-fstack-usage;-fcyclomatic-complexity",
                 "CUBE_CMAKE_ASM_FLAGS": "-mfpu=fpv4-sp-d16;-mfloat-abi=hard;-mthumb;--specs=nano.specs;-mcpu=cortex-m4;-g3;-DDEBUG;-x;assembler-with-cpp",
@@ -37,6 +38,7 @@
             "inherits": "default",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
+                "APP_TRACE_MODE": "SYSVIEW",
                 "CUBE_CMAKE_C_FLAGS": "-mfpu=fpv4-sp-d16;-mfloat-abi=hard;-mthumb;--specs=nano.specs;-mcpu=cortex-m4;-std=gnu11;-DUSE_HAL_DRIVER;-DSTM32F429xx;-Os;-ffunction-sections;-fdata-sections;-Wall;-fstack-usage;-fcyclomatic-complexity",
                 "CUBE_CMAKE_CXX_FLAGS": "-mfpu=fpv4-sp-d16;-mfloat-abi=hard;-mthumb;--specs=nano.specs;-mcpu=cortex-m4;-std=gnu++14;-Os;-ffunction-sections;-fdata-sections;-fno-exceptions;-fno-rtti;-fno-use-cxa-atexit;-Wall;-fstack-usage;-fcyclomatic-complexity",
                 "CUBE_CMAKE_ASM_FLAGS": "-mfpu=fpv4-sp-d16;-mfloat-abi=hard;-mthumb;--specs=nano.specs;-mcpu=cortex-m4;-x;assembler-with-cpp",

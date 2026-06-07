@@ -92,6 +92,10 @@ Additional information:
 **********************************************************************
 */
 
+#ifndef SEGGER_SYSVIEW_USE_UART
+  #define SEGGER_SYSVIEW_USE_UART                1
+#endif
+
 
 #endif  // SEGGER_SYSVIEW_CONF_H
 
